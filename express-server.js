@@ -47,6 +47,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+
 app.get("/urls/:shortURL", (req, res) => {
   // console.log(req.params.shortURL);
   // console.log(urlDatabase[req.params.shortURL]);
@@ -57,6 +58,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// Add new URL
 app.post("/urls", (req, res) => {
   console.log(req.body);
   // console.log(res.json);
@@ -64,24 +66,38 @@ app.post("/urls", (req, res) => {
   urlDatabase[rStr] = req.body.longURL;
   console.log(rStr, urlDatabase[rStr]);
   res.redirect(302, "/urls/" + rStr);
-
-  // console.log(urlDatabase);
-  // urlDatabase[longURL] = "hello";
-  // console.log(urlDatabase);
 });
 
+// Get a URL resource
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(302, longURL);
 });
 
-
+// Delete URL resource
 app.post("/urls/:shortURL/delete", (req, res) => {
   console.log("delete button clicked");
   delete urlDatabase[req.params.shortURL];
-  res.redirect(302, "/urls/");
+  // res.redirect(302, "/urls/");
 });
 
+// Update URL resource
+app.get("/urls/:shortURL", (req, res) => {
+  console.log("edit button clicked");
+  console.log(req.params.shortURL);
+  let urlKey = req.params.shortURL;
+  // res.redirect(302, "/urls/" + urlKey);
+});
+
+// Update URL resource
+app.post("/urls/:shortURL", (req, res) => {
+  console.log("Updating")
+  console.log(req.body);
+
+  urlDatabase[shortURL] = req.body.longURL;
+  // console.log(rStr, urlDatabase[rStr]);
+  res.redirect(302, "/urls/" + rStr);
+});
 
 function generateRandomString() {
   let randomString = "";
@@ -94,3 +110,4 @@ function generateRandomString() {
   }
   return randomString;
 }
+
