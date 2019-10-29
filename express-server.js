@@ -55,16 +55,21 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
+  console.log(req.body);
   // console.log(res.json);
   let rStr = generateRandomString();
   urlDatabase[rStr] = req.body.longURL;
   console.log(rStr, urlDatabase[rStr]);
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  res.redirect(302, "/urls/" + rStr);
 
   // console.log(urlDatabase);
   // urlDatabase[longURL] = "hello";
   // console.log(urlDatabase);
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(302, longURL);
 });
 
 function generateRandomString() {
