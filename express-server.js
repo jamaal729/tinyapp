@@ -56,19 +56,24 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
+  // console.log(res.json);
+  let rStr = generateRandomString();
+  urlDatabase[rStr] = req.body.longURL;
+  console.log(rStr, urlDatabase[rStr]);
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
-});
 
+  // console.log(urlDatabase);
+  // urlDatabase[longURL] = "hello";
+  // console.log(urlDatabase);
+});
 
 function generateRandomString() {
   let randomString = "";
   let characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  console.log(characters.length + "\n--");
+  // console.log(characters.length + "\n--");
   for (let i = 0; i < 6; i++) {
     let rand = Math.floor(Math.random() * 63);
     if (rand === 0 || rand === 62) console.log(rand);
-    // console.log(rand);
-
     randomString += characters.charAt(rand);
   }
   return randomString;
