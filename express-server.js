@@ -6,11 +6,23 @@ const PORT = 8080; // default port 8080
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
-
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
+
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -122,6 +134,16 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   res.clearCookie ('username');
   res.redirect(302, "/urls/");
+});
+
+// Register
+app.get("/register", (req, res) => {
+  let templateVars = {
+    username: req.cookies["username"],
+    urls: urlDatabase
+  };
+  res.render("register", templateVars);
+
 });
 
 function generateRandomString() {
