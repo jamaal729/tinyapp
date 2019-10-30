@@ -146,28 +146,42 @@ app.get("/register", (req, res) => {
 
 // Register new user
 app.post("/register", (req, res) => {
-  console.log("form data:", req.body.email, req.body.password);
-  console.log(Object.keys(users));
+  // console.log("form data:", req.body.email, req.body.password);
+  // console.log(Object.keys(users));
 
+
+  let userFound = false;
   for (let userKey of Object.keys(users)) {
-    console.log("database:", users[userKey].email);
+    // console.log("::: database:", users[userKey].email, ", ", "req: ", req.body.email);
     if (users[userKey].email === req.body.email) {
-      console.log("User with this email exists");
-      break;
-    } else {
-      console.log("Creating new user");
-      let newKey = generateRandomString();
-      let newUser = {};
-      newUser.id = newKey;
-      newUser.email = req.body.email;
-      newUser.password = req.body.password;
-      users[newKey] = newUser;
+      userFound = true;
       break;
     }
   }
 
+  if (req.body.email === "" || req.body.password === "") {
+    res.status(400).send("Email and password are required");
+  }
+
+  else if (userFound === true) {
+    res.status(400).send("User with this email exists");
+  }
+  else {
+    console.log("Creating new user");
+    let newKey = generateRandomString();
+    let newUser = {};
+    newUser.id = newKey;
+    newUser.email = req.body.email;
+    newUser.password = req.body.password;
+    users[newKey] = newUser;
+    res.cookie('user_id', newKey);
+
+    
+    res.redirect("/urls");
+  }
+
   console.log(users);
-  res.redirect("/urls");
+  console.log();
 });
 
 function generateRandomString() {
