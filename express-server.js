@@ -11,15 +11,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 }
@@ -68,7 +68,6 @@ app.get("/urls/new", (req, res) => {
   };
   res.render("urls_new", templateVars);
 });
-
 
 app.get("/urls/:shortURL", (req, res) => {
   // console.log(req.params.shortURL);
@@ -132,18 +131,43 @@ app.post("/login", (req, res) => {
 
 // Logout
 app.post("/logout", (req, res) => {
-  res.clearCookie ('username');
+  res.clearCookie('username');
   res.redirect(302, "/urls/");
 });
 
-// Register
+// Display registration page
 app.get("/register", (req, res) => {
   let templateVars = {
     username: req.cookies["username"],
     urls: urlDatabase
   };
   res.render("register", templateVars);
+});
 
+// Register new user
+app.post("/register", (req, res) => {
+  console.log("form data:", req.body.email, req.body.password);
+  console.log(Object.keys(users));
+
+  for (let userKey of Object.keys(users)) {
+    console.log("database:", users[userKey].email);
+    if (users[userKey].email === req.body.email) {
+      console.log("User with this email exists");
+      break;
+    } else {
+      console.log("Creating new user");
+      let newKey = generateRandomString();
+      let newUser = {};
+      newUser.id = newKey;
+      newUser.email = req.body.email;
+      newUser.password = req.body.password;
+      users[newKey] = newUser;
+      break;
+    }
+  }
+
+  console.log(users);
+  res.redirect("/urls");
 });
 
 function generateRandomString() {
@@ -152,7 +176,7 @@ function generateRandomString() {
   // console.log(characters.length + "\n--");
   for (let i = 0; i < 6; i++) {
     let rand = Math.floor(Math.random() * 63);
-    if (rand === 0 || rand === 62) console.log(rand);
+    // if (rand === 0 || rand === 62) console.log(rand);
     randomString += characters.charAt(rand);
   }
   return randomString;
