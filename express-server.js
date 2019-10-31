@@ -57,14 +57,25 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
-    username: req.cookies["user_id"]
+    username: req.cookies["user_id"],
+    user: users[req.cookies.user_id]
   };
+  // console.log(users);
+  // console.log(req.cookies);
+  // console.log(req.cookies.user_id);
+  // // console.log(req.cookies.user_id);
+  // let aaa = req.cookies.user_id;
+  // console.log("aaa:", aaa);
+  // console.log("object:", users[aaa] );
+  console.log("user:", users["userRandomID"]);
+  console.log("user:", users[req.cookies.user_id]);
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-    username: req.cookies["user_id"]
+    username: req.cookies["user_id"],
+    user: users[req.cookies.user_id]
   };
   res.render("urls_new", templateVars);
 });
@@ -75,7 +86,8 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.longURL],
-    username: req.cookies["user_id"]
+    username: req.cookies["user_id"],
+    user: users[req.cookies.user_id]
   };
   res.render("urls_show", templateVars);
 });
@@ -150,7 +162,8 @@ app.post("/login", (req, res) => {
     console.log("logged in");
     res.cookie('user_id', userKey);
     console.log(req.body.username);
-    res.redirect('back');
+    // res.redirect('back');
+    res.redirect("/urls");
   }
 
 });
@@ -165,7 +178,8 @@ app.post("/logout", (req, res) => {
 app.get("/register", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
-    username: req.cookies["user_id"]
+    username: req.cookies["user_id"],
+    user: users[req.cookies.user_id]
   };
   res.render("register", templateVars);
 });
@@ -175,6 +189,7 @@ app.get("/register", (req, res) => {
 app.get("/login", (req, res) => {
   let templateVars = {
     username: req.cookies["user_id"],
+    user: users[req.cookies.user_id],
     urls: urlDatabase
   };
   res.render("login", templateVars);
@@ -209,7 +224,9 @@ app.post("/register", (req, res) => {
     newUser.email = req.body.email;
     newUser.password = req.body.password;
     users[newKey] = newUser;
-
+    console.log("------------------------------");
+    console.log(users);
+    console.log("------------------------------");
     console.log(users[newKey]["email"], users[newKey]["password"]);
 
     res.cookie('user_id', newKey);
