@@ -56,15 +56,15 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let templateVars = {
-    username: req.cookies["username"],
-    urls: urlDatabase
+    urls: urlDatabase,
+    username: req.cookies["user_id"]
   };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-    username: req.cookies["username"]
+    username: req.cookies["user_id"]
   };
   res.render("urls_new", templateVars);
 });
@@ -73,9 +73,9 @@ app.get("/urls/:shortURL", (req, res) => {
   // console.log(req.params.shortURL);
   // console.log(urlDatabase[req.params.shortURL]);
   let templateVars = {
-    username: req.cookies["username"],
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.longURL]
+    longURL: urlDatabase[req.params.longURL],
+    username: req.cookies["user_id"]
   };
   res.render("urls_show", templateVars);
 });
@@ -100,7 +100,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   console.log("delete button clicked");
   delete urlDatabase[req.params.shortURL];
-  // res.redirect(302, "/urls/");
+  // res.redirect(302, "/urls");
 });
 
 // Update URL resource
@@ -124,22 +124,48 @@ app.post("/urls/:shortURL", (req, res) => {
 // Set cookie on login
 app.post("/login", (req, res) => {
   // console.log(req.cookies);
-  res.cookie('username', req.body.username);
-  console.log(req.cookies.username);
-  res.redirect('back');
+
+  let userFound = false;
+  let userObj = {};
+  let userKey;
+  for (let key of Object.keys(users)) {
+    // console.log("::: database:", users[key].email, ", ", "req: ", req.body.email);
+    if (users[key].email === req.body.email) {
+      userFound = true;
+      userKey = key;
+      console.log("userFound: ", userFound);
+      console.log(users[key].id);
+      break;
+    }
+  }
+
+  if (userFound !== true) {
+    res.status(403).send("User does not exist");
+  }
+  else if (users[userKey].password !== req.body.password) {
+    console.log("Wrong password");
+    res.status(403).send("Wrong password");
+  }
+  else {
+    console.log("logged in");
+    res.cookie('user_id', userKey);
+    console.log(req.body.username);
+    res.redirect('back');
+  }
+
 });
 
 // Logout
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
-  res.redirect(302, "/urls/");
+  res.clearCookie('user_id');
+  res.redirect(302, "/urls");
 });
 
 // Display registration page
 app.get("/register", (req, res) => {
   let templateVars = {
-    username: req.cookies["username"],
-    urls: urlDatabase
+    urls: urlDatabase,
+    username: req.cookies["user_id"]
   };
   res.render("register", templateVars);
 });
@@ -148,23 +174,21 @@ app.get("/register", (req, res) => {
 // Display login page
 app.get("/login", (req, res) => {
   let templateVars = {
-    username: req.cookies["username"],
+    username: req.cookies["user_id"],
     urls: urlDatabase
   };
   res.render("login", templateVars);
 });
-
 
 // Register new user
 app.post("/register", (req, res) => {
   // console.log("form data:", req.body.email, req.body.password);
   // console.log(Object.keys(users));
 
-
   let userFound = false;
-  for (let userKey of Object.keys(users)) {
+  for (let key of Object.keys(users)) {
     // console.log("::: database:", users[userKey].email, ", ", "req: ", req.body.email);
-    if (users[userKey].email === req.body.email) {
+    if (users[key].email === req.body.email) {
       userFound = true;
       break;
     }
@@ -185,13 +209,14 @@ app.post("/register", (req, res) => {
     newUser.email = req.body.email;
     newUser.password = req.body.password;
     users[newKey] = newUser;
-    res.cookie('user_id', newKey);
 
-    
+    console.log(users[newKey]["email"], users[newKey]["password"]);
+
+    res.cookie('user_id', newKey);
     res.redirect("/urls");
   }
 
-  console.log(users);
+  // console.log(users);
   console.log();
 });
 
