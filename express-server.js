@@ -144,6 +144,17 @@ app.get("/register", (req, res) => {
   res.render("register", templateVars);
 });
 
+
+// Display login page
+app.get("/login", (req, res) => {
+  let templateVars = {
+    username: req.cookies["username"],
+    urls: urlDatabase
+  };
+  res.render("login", templateVars);
+});
+
+
 // Register new user
 app.post("/register", (req, res) => {
   // console.log("form data:", req.body.email, req.body.password);
