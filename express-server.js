@@ -8,6 +8,8 @@ app.use(cookieParser())
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const bcrypt = require('bcrypt');
+
 app.set("view engine", "ejs");
 
 const users = {
@@ -171,10 +173,18 @@ app.post("/urls/:shortURL", (req, res) => {
 // Set cookie on login
 app.post("/login", (req, res) => {
   const userKey = getId(users, req.body.email);
+
   if (!userKey) {
     res.status(403).send("User does not exist");
   }
-  else if (users[userKey].password !== req.body.password) {
+
+  else if (bcrypt.compareSync(req.body.password, users[userKey].password) === false) {
+    const databasePassword = bcrypt.hashSync(users[userKey].password, 10);
+
+    // console.log(req.body.password);
+    // const typedPassword = req.body.password;
+    // console.log("passwords ", databasePassword, typedPassword);
+
     console.log("Wrong password");
     res.status(403).send("Wrong password");
   }
@@ -232,7 +242,8 @@ app.post("/register", (req, res) => {
     let newUser = {};
     newUser.id = newKey;
     newUser.email = req.body.email;
-    newUser.password = req.body.password;
+    newUser.password = bcrypt.hashSync(req.body.password, 10);
+    console.log(newUser.password);
     users[newKey] = newUser;
     console.log(users[newKey]["email"], users[newKey]["password"]);
 
