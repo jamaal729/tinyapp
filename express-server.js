@@ -65,10 +65,16 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = {
-    user: users[req.cookies.user_id]
-  };
-  res.render("urls_new", templateVars);
+  console.log();
+  if (!req.cookies.user_id) {
+    res.redirect("/login");
+  }
+  else {
+    let templateVars = {
+      user: users[req.cookies.user_id]
+    };
+    res.render("urls_new", templateVars);
+  }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -84,6 +90,8 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Add new URL
 app.post("/urls", (req, res) => {
+
+
   console.log(req.body);
   // console.log(res.json);
   let rStr = generateRandomString();
