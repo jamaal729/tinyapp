@@ -23,16 +23,23 @@ const users = {
   }
 }
 
-const urlDatabase = {
+const urlDatabase_old = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const urlDatabase = {
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
+};
+
 
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
 app.listen(PORT, () => {
+  // TODO: Clear cookies on startup?
   console.log(`Example app listening on port ${PORT}!`);
 });
 
@@ -90,12 +97,14 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Add new URL
 app.post("/urls", (req, res) => {
+  console.log("user_id ", req.cookies.user_id);
 
-
+  // console.log("user_id:", res.cookie["user_id"]);
   console.log(req.body);
   // console.log(res.json);
   let rStr = generateRandomString();
-  urlDatabase[rStr] = req.body.longURL;
+  let user_id = req.cookies.user_id;
+  urlDatabase[rStr] = { longURL: req.body.longURL, userID: req.cookies.user_id }
   console.log(rStr, urlDatabase[rStr]);
   res.redirect(302, "/urls/" + rStr);
 });
