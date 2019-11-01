@@ -64,10 +64,8 @@ app.get("/urls", (req, res) => {
   // console.log("user:", users["userRandomID"]);
   // console.log("user:", users[req.cookies.user_id]);
 
-  // console.log(urlDatabase);
   const userUrls = urlsForUser(req.cookies.user_id, urlDatabase);
-  console.log("userUrls");
-  console.log(userUrls);
+
   let templateVars = {
     urls: userUrls,
     user: users[req.cookies.user_id]
@@ -108,10 +106,10 @@ app.post("/urls", (req, res) => {
   console.log(req.body);
   // console.log(res.json);
   let rStr = generateRandomString();
-  let user_id = req.cookies.user_id;
+  rStr = "SHORT_URL";
   urlDatabase[rStr] = { longURL: req.body.longURL, userID: req.cookies.user_id }
   console.log(rStr, urlDatabase[rStr]);
-  res.redirect(302, "/urls/" + rStr);
+  res.redirect(302, "/urls/");
 });
 
 // Get a URL resource
@@ -122,9 +120,23 @@ app.get("/u/:shortURL", (req, res) => {
 
 // Delete URL resource
 app.post("/urls/:shortURL/delete", (req, res) => {
+  console.log();
+  console.log(req.params.shortURL);
+  console.log(req.cookies.user_id);
+
+  let shortURL = req.params.shortURL;
+  console.log(urlDatabase[shortURL].userID);
   console.log("delete button clicked");
-  delete urlDatabase[req.params.shortURL];
-  // res.redirect(302, "/urls");
+
+  if (urlDatabase[shortURL].userID === req.cookies.user_id) {
+    delete urlDatabase[req.params.shortURL];
+    // res.redirect(302, "/urls");
+  }
+  else {
+    console.log("You're not allowed to delete this url.\n");
+    res.status(403).send("You're not allowed to delete this url.\n");
+  }
+  res.redirect('back');
 });
 
 // Update URL resource
@@ -137,12 +149,23 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Update URL resource
 app.post("/urls/:shortURL", (req, res) => {
-  console.log("Updating")
+  console.log("req.body:")
   console.log(req.body);
+  console.log("req.params:");
+  console.log(req.params);
+  let shortURL = req.params.shortURL;
+  console.log(urlDatabase[shortURL]);
 
-  urlDatabase[shortURL] = req.body.longURL;
-  // console.log(rStr, urlDatabase[rStr]);
-  res.redirect(302, "/urls/" + rStr);
+  if (urlDatabase[shortURL].userID === req.cookies.user_id) {
+    console.log("url found!")
+    urlDatabase[shortURL] = req.body.longURL;
+    res.redirect(302, "/urls/");
+  }
+  else {
+    console.log("You're not allowed to delete this url.\n");
+    res.status(403).send("You're not allowed to delete this url.\n");
+    res.redirect('back');
+  }
 });
 
 // Set cookie on login
@@ -223,12 +246,15 @@ app.post("/register", (req, res) => {
 
 // Retrieves a user's urls
 const urlsForUser = function (id, urlDatabase) {
-  console.log(id);
-  console.log(urlDatabase);
-  console.log("list urls");
-  for (let url in urlDatabase) {
-    console.log(url);
-  }
+  // console.log(id);
+  // console.log(urlDatabase);
+  // console.log("list urls");
+
+  // for (let url in urlDatabase) {
+  //   console.log(url);
+  // }
+
+
   let userUrls = {};
   for (let url in urlDatabase) {
     // console.log(urlDatabase[url].userID);
