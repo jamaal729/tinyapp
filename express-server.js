@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
+const { getUserByEmail, getUrlsByUser } = require('./helpers.js');
+
 // const cookieParser = require('cookie-parser');
 // app.use(cookieParser());
 
@@ -72,7 +74,7 @@ app.get("/urls", (req, res) => {
   // console.log("user:", users["userRandomID"]);
   // console.log("user:", users[req.session.user_id]);
 
-  const userUrls = urlsForUser(req.session.user_id, urlDatabase);
+  const userUrls = getUrlsByUser(req.session.user_id, urlDatabase);
   console.log(req.session.user_id);
   let templateVars = {
     urls: userUrls,
@@ -179,7 +181,7 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // Set cookie on login
 app.post("/login", (req, res) => {
-  const userKey = getId(users, req.body.email);
+  const userKey = getUserByEmail(req.body.email, users);
 
   if (!userKey) {
     res.status(403).send("User does not exist");
@@ -236,7 +238,7 @@ app.post("/register", (req, res) => {
 
   console.log("req.body.email:", req.body.email);
 
-  const userKey = getId(users, req.body.email);
+  const userKey = getUserByEmail(req.body.email, users);
 
   if (req.body.email === "" || req.body.password === "") {
     res.status(400).send("Email and password are required");
@@ -255,55 +257,18 @@ app.post("/register", (req, res) => {
     console.log(newUser.password);
     users[newKey] = newUser;
     console.log(users[newKey]["email"], users[newKey]["password"]);
-
-    // res.cookie('user_id', newKey);
     req.session.user_id = newKey;
     res.redirect("/urls");
   }
-
-  // console.log(users);
   console.log();
 });
 
-// Retrieves a user's urls
-const urlsForUser = function (id, urlDatabase) {
-  // console.log(id);
-  // console.log(urlDatabase);
-  // console.log("list urls");
-
-  // for (let url in urlDatabase) {
-  //   console.log(url);
-  // }
 
 
-  let userUrls = {};
-  for (let url in urlDatabase) {
-    // console.log(urlDatabase[url].userID);
-    if (id === urlDatabase[url].userID) {
-      console.log(true);
-      userUrls[url] = urlDatabase[url];
-    }
-  }
-  return userUrls;
-}
 
-// Find a user by email
-const getId = function (users, email) {
-  let userKey;
-  // let userFound = false;
-  for (let key of Object.keys(users)) {
-    // console.log("::: database:", users[userKey].email, ", ", "req: ", req.body.email);
-    if (users[key].email === email) {
-      // userFound = true;
-      userKey = key;
-      break;
-    }
-  }
-  return userKey;
-}
 
 // Generate random string for object keys
-function generateRandomString() {
+const generateRandomString = function () {
   let randomString = "";
   let characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   // console.log(characters.length + "\n--");
