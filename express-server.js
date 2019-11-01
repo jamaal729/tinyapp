@@ -61,13 +61,18 @@ app.get("/hello", (req, res) => {
 // });
 
 app.get("/urls", (req, res) => {
+  // console.log("user:", users["userRandomID"]);
+  // console.log("user:", users[req.cookies.user_id]);
+
+  // console.log(urlDatabase);
+  const userUrls = urlsForUser(req.cookies.user_id, urlDatabase);
+  console.log("userUrls");
+  console.log(userUrls);
   let templateVars = {
-    urls: urlDatabase,
+    urls: userUrls,
     user: users[req.cookies.user_id]
   };
 
-  console.log("user:", users["userRandomID"]);
-  console.log("user:", users[req.cookies.user_id]);
   res.render("urls_index", templateVars);
 });
 
@@ -215,6 +220,25 @@ app.post("/register", (req, res) => {
   // console.log(users);
   console.log();
 });
+
+// Retrieves a user's urls
+const urlsForUser = function (id, urlDatabase) {
+  console.log(id);
+  console.log(urlDatabase);
+  console.log("list urls");
+  for (let url in urlDatabase) {
+    console.log(url);
+  }
+  let userUrls = {};
+  for (let url in urlDatabase) {
+    // console.log(urlDatabase[url].userID);
+    if (id === urlDatabase[url].userID) {
+      console.log(true);
+      userUrls[url] = urlDatabase[url];
+    }
+  }
+  return userUrls;
+}
 
 // Find a user by email
 const getId = function (users, email) {
