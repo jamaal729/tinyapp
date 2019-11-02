@@ -103,7 +103,7 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: urlDatabase[req.params.longURL],
     user: users[req.session.user_id]
   };
-  console.log(shortURL);
+  console.log(req.params.shortURL);
   res.render("urls_show", templateVars);
 });
 
@@ -115,7 +115,7 @@ app.post("/urls", (req, res) => {
   // console.log(req.body);
   // console.log(res.json);
   let rStr = generateRandomString();
-  rStr = "SHORT_URL";
+  // rStr = "SHORT_URL";
   urlDatabase[rStr] = { longURL: req.body.longURL, userID: req.session.user_id }
   // console.log(rStr, urlDatabase[rStr]);
   res.redirect(302, "/urls/");
@@ -163,11 +163,11 @@ app.post("/urls/:shortURL", (req, res) => {
   // console.log("req.params:");
   // console.log(req.params);
   let shortURL = req.params.shortURL;
-  // console.log(urlDatabase[shortURL]);
+  console.log(urlDatabase[shortURL]);
 
   if (urlDatabase[shortURL].userID === req.session.user_id) {
     // console.log("url found!")
-    urlDatabase[shortURL] = req.body.longURL;
+    urlDatabase[shortURL]["longURL"] = req.body.newURL;
     res.redirect(302, "/urls/");
   }
   else {
