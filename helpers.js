@@ -14,13 +14,11 @@ const getUserByEmail = function (email, users) {
 const getUrlsByUser = function (id, urlDatabase) {
   let userUrls = {};
   for (let url in urlDatabase) {
-    // console.log(urlDatabase[url].userID);
     if (id === urlDatabase[url].userID) {
-      console.log(true);
       userUrls[url] = urlDatabase[url];
     }
   }
   return userUrls;
 }
 
-module.exports = {getUserByEmail, getUrlsByUser};
+module.exports = { getUserByEmail, getUrlsByUser };

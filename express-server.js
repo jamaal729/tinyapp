@@ -33,11 +33,6 @@ const users = {
   }
 }
 
-const urlDatabase_old = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
-
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
@@ -75,12 +70,14 @@ app.get("/urls", (req, res) => {
   // console.log("user:", users[req.session.user_id]);
 
   const userUrls = getUrlsByUser(req.session.user_id, urlDatabase);
-  console.log(req.session.user_id);
+  // console.log("userUrls", userUrls);
+
+  // console.log(req.session.user_id);
   let templateVars = {
     urls: userUrls,
     user: users[req.session.user_id]
   };
-  console.log(templateVars.urls);
+  // console.log(templateVars.urls);
 
   res.render("urls_index", templateVars);
 });
@@ -106,20 +103,21 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: urlDatabase[req.params.longURL],
     user: users[req.session.user_id]
   };
+  console.log(shortURL);
   res.render("urls_show", templateVars);
 });
 
 // Add new URL
 app.post("/urls", (req, res) => {
-  console.log("user_id ", req.session.user_id);
+  // console.log("user_id ", req.session.user_id);
 
   // console.log("user_id:", res.cookie["user_id"]);
-  console.log(req.body);
+  // console.log(req.body);
   // console.log(res.json);
   let rStr = generateRandomString();
   rStr = "SHORT_URL";
   urlDatabase[rStr] = { longURL: req.body.longURL, userID: req.session.user_id }
-  console.log(rStr, urlDatabase[rStr]);
+  // console.log(rStr, urlDatabase[rStr]);
   res.redirect(302, "/urls/");
 });
 
@@ -160,15 +158,15 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Update URL resource
 app.post("/urls/:shortURL", (req, res) => {
-  console.log("req.body:")
-  console.log(req.body);
-  console.log("req.params:");
-  console.log(req.params);
+  // console.log("req.body:")
+  // console.log(req.body);
+  // console.log("req.params:");
+  // console.log(req.params);
   let shortURL = req.params.shortURL;
-  console.log(urlDatabase[shortURL]);
+  // console.log(urlDatabase[shortURL]);
 
   if (urlDatabase[shortURL].userID === req.session.user_id) {
-    console.log("url found!")
+    // console.log("url found!")
     urlDatabase[shortURL] = req.body.longURL;
     res.redirect(302, "/urls/");
   }
@@ -201,7 +199,7 @@ app.post("/login", (req, res) => {
     console.log("logged in");
     // res.cookie('user_id', userKey);
     req.session.user_id = userKey;
-    console.log(req.session.user_id);
+    // console.log(req.session.user_id);
     res.redirect("/urls");
   }
 });
@@ -262,9 +260,6 @@ app.post("/register", (req, res) => {
   }
   console.log();
 });
-
-
-
 
 
 // Generate random string for object keys
