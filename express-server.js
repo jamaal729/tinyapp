@@ -36,8 +36,6 @@ const users = {
 const urlDatabase = {
   // b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   // i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
-  aaaaaa: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  bbbbbb: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
 app.listen(PORT, () => {
@@ -92,17 +90,14 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   if (!req.session.user_id) {
     res.send("<html><body>Error! You are not logged in!</body></html>\n");
-  }
-  else {
+  } else {
     if (urlDatabase[req.params.shortURL] &&
       req.session.user_id
       !== urlDatabase[req.params.shortURL]["userID"]) {
       res.send("<html><body>Error! You do not own this url!</body></html>\n");
-    }
-    else if (!urlDatabase[req.params.shortURL]) {
+    } else if (!urlDatabase[req.params.shortURL]) {
       res.send("<html><body>Error! This url does not exist!</body></html>\n");
-    }
-    else {
+    } else {
       let shortURL = req.params.shortURL;
       let longURL = urlDatabase[shortURL]["longURL"];
       let templateVars = {
@@ -119,8 +114,7 @@ app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     const longURL = urlDatabase[req.params.shortURL]["longURL"];
     res.redirect(302, longURL);
-  }
-  else {
+  } else {
     res.send("<html><body>Error! This url does not exist.</body></html>\n");
   }
 });
@@ -133,9 +127,8 @@ app.post("/urls", (req, res) => {
     // "https://" + for longURL
     urlDatabase[rStr] = { longURL: req.body.longURL, userID: req.session.user_id };
     // console.log(rStr, urlDatabase[rStr]);
-    res.redirect(302, "/urls/");
-  }
-  else {
+    res.redirect(302, "/urls/" + rStr);
+  } else {
     res.send("<html><body>Error! Only signed-in users are allowed to create short urls.</body></html>\n");
   }
 });
@@ -153,8 +146,7 @@ app.post("/urls/:shortURL", (req, res) => {
       res.status(403).send("You're not allowed to delete this url.\n");
       res.redirect('back');
     }
-  }
-  else {
+  } else {
     res.status(403).send("You're not logged in.\n");
   }
 });
