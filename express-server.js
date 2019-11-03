@@ -14,34 +14,15 @@ app.use(cookieSession({
 
 const bcrypt = require('bcrypt');
 
-const {
-  getUserByEmail, getUrlsByUser,
-  generateRandomString } = require('./helpers.js');
-
-// SEED DATA
-
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  }
-};
-
-const urlDatabase = {
-  // b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  // i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
-};
-
 app.listen(PORT, () => {
-  // TODO: Clear cookies on startup?
+  //TODO: Clear session on start ?
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+const { users, urlDatabase } = require('./app-data');
+const { getUserByEmail, getUrlsByUser,
+  generateRandomString } = require('./helpers.js');
+
 
 // BEGIN ROUTES
 
@@ -50,7 +31,7 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// Root route
+// Root resource
 app.get("/", (req, res) => {
   if (!req.session.user_id) {
     res.redirect("/login");
@@ -75,7 +56,6 @@ app.get("/urls", (req, res) => {
 
 // Display form to enter new url
 app.get("/urls/new", (req, res) => {
-  console.log();
   if (!req.session.user_id) {
     res.redirect("/login");
   } else {
@@ -124,9 +104,7 @@ app.post("/urls", (req, res) => {
   if (req.session.user_id) {
     let rStr = generateRandomString();
     // rStr = "SHORT_URL";
-    // "https://" + for longURL
     urlDatabase[rStr] = { longURL: req.body.longURL, userID: req.session.user_id };
-    // console.log(rStr, urlDatabase[rStr]);
     res.redirect(302, "/urls/" + rStr);
   } else {
     res.send("<html><body>Error! Only signed-in users are allowed to create short urls.</body></html>\n");
@@ -137,7 +115,6 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   if (req.session.user_id) {
     let shortURL = req.params.shortURL;
-    console.log(urlDatabase[shortURL]);
     if (urlDatabase[shortURL].userID === req.session.user_id) {
       urlDatabase[shortURL]["longURL"] = req.body.newURL;
       res.redirect(302, "/urls/");
@@ -154,15 +131,9 @@ app.post("/urls/:shortURL", (req, res) => {
 // Delete url resource
 app.post("/urls/:shortURL/delete", (req, res) => {
   if (req.session.user_id) {
-    console.log();
-    console.log(req.params.shortURL);
-    console.log(req.session.user_id);
     let shortURL = req.params.shortURL;
-    console.log(urlDatabase[shortURL].userID);
-    console.log("delete button clicked");
     if (urlDatabase[shortURL].userID === req.session.user_id) {
       delete urlDatabase[req.params.shortURL];
-      // res.redirect(302, "/urls");
     } else {
       console.log("You're not allowed to delete this url.\n");
       res.status(403).send("You're not allowed to delete this url.\n");
@@ -173,22 +144,14 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
-
 // Set cookie on login
 app.post("/login", (req, res) => {
   const userKey = getUserByEmail(req.body.email, users);
   if (!userKey) {
     res.status(403).send("User does not exist");
   } else if (bcrypt.compareSync(req.body.password, users[userKey].password) === false) {
-    // const databasePassword = bcrypt.hashSync(users[userKey].password, 10);
-    // console.log(req.body.password);
-    // const typedPassword = req.body.password;
-    // console.log("passwords ", databasePassword, typedPassword);
-
-    console.log("Wrong password");
     res.status(403).send("Wrong password");
   } else {
-    console.log("logged in");
     req.session.user_id = userKey;
     res.redirect("/urls");
   }
@@ -220,26 +183,20 @@ app.get("/login", (req, res) => {
 
 // Register new user
 app.post("/register", (req, res) => {
-  // console.log("form data:", req.body.email, req.body.password);
-  // console.log(Object.keys(users));
-  console.log("req.body.email:", req.body.email);
   const userKey = getUserByEmail(req.body.email, users);
   if (req.body.email === "" || req.body.password === "") {
     res.status(400).send("Email and password are required");
   } else if (userKey) {
     res.status(400).send("User with this email exists");
   } else {
-    console.log("Creating new user");
     let newKey = generateRandomString();
     let newUser = {};
     newUser.id = newKey;
     newUser.email = req.body.email;
     newUser.password = bcrypt.hashSync(req.body.password, 10);
-    console.log(newUser.password);
     users[newKey] = newUser;
-    console.log(users[newKey]["email"], users[newKey]["password"]);
+    // console.log(users[newKey]["email"], users[newKey]["password"]);
     req.session.user_id = newKey;
     res.redirect("/urls");
   }
-  console.log();
 });
